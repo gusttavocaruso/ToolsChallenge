@@ -1,4 +1,4 @@
-package dev.gustavo.toolschallenge.domain.entity;
+package dev.gustavo.toolschallenge.domain.entities;
 
 import dev.gustavo.toolschallenge.domain.enums.TipoPagamento;
 import dev.gustavo.toolschallenge.domain.enums.StatusTransacao;
@@ -10,7 +10,6 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -21,8 +20,7 @@ import java.util.UUID;
 public class Transacao {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private Long id;
 
     @Column(name = "cartao")
     private String cartao;
