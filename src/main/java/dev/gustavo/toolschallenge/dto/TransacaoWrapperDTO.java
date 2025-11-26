@@ -1,5 +1,6 @@
 package dev.gustavo.toolschallenge.dto;
 
-public record TransacaoWrapperDTO(TransacaoDTO transacao) {
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-}
+public record TransacaoWrapperDTO(@NotNull @Valid TransacaoDTO transacao) {}

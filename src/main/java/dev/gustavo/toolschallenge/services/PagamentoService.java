@@ -8,10 +8,10 @@ import dev.gustavo.toolschallenge.dto.FormaPagamentoDTO;
 import dev.gustavo.toolschallenge.dto.TransacaoDTO;
 import dev.gustavo.toolschallenge.dto.TransacaoWrapperDTO;
 import dev.gustavo.toolschallenge.repositories.TransacaoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,58 +36,57 @@ public class PagamentoService {
         return transacaoDTOList;
     }
 
-    public TransacaoWrapperDTO criarPagamento(TransacaoWrapperDTO wrapperDTO) {
+    @Transactional
+    public TransacaoWrapperDTO criarPagamento(TransacaoWrapperDTO dtoRequest) {
+        Transacao transacao = montaTransacaoObj(dtoRequest);
 
-        // Convert DTO -> Entity manualmente (sem mapper)
-        Transacao t = new Transacao();
-        // cartao pode vir mascarado; id externo pode ser informado em wrapper.transacao.id
-        t.setCartao(wrapperDTO.transacao().cartao());
-        t.setId(Long.valueOf(wrapperDTO.transacao().id()));
-
-
-        // descricao.valor vem como string; converter para BigDecimal
-        BigDecimal valor = new BigDecimal(wrapperDTO.transacao().descricao().valor().replace(',', '.'));
-        t.setValor(valor);
-
-
-        // dataHora e estabelecimento
-        // para simplicidade, não convertemos dataHora para LocalDateTime aqui (poderia ser parseado se quiser)
-        t.setDataHora(LocalDateTime.now());
-        t.setEstabelecimento(wrapperDTO.transacao().descricao().estabelecimento());
-
-
-        // forma de pagamento
-        if (wrapperDTO.transacao().formaPagamento() != null) {
-            t.setTipoPagamento(TipoPagamento.AVISTA);
-            t.setParcelas(Integer.valueOf(wrapperDTO.transacao().formaPagamento().parcelas()));
+        try {
+            transacao.setStatus(StatusTransacao.AUTORIZADO);
+            Transacao transacaoSalva = transacaoRepository.save(transacao);
+            return new TransacaoWrapperDTO(montaTransacaoDTO(transacaoSalva));
+        } catch (Exception e) {
+            transacao.setStatus(StatusTransacao.NEGADO);
+            return new TransacaoWrapperDTO(montaTransacaoDTO(transacao));
         }
 
-        t.setStatus(StatusTransacao.AUTORIZADO);
-
-        // preenche nsu / codigoAutorizacao simples
-        t.setNsu(generateNsu());
-        t.setCodigoAutorizacao(generateCodigoAutorizacao());
-
-        Transacao saved = transacaoRepository.save(t);
-
-        // Monta DTO de resposta seguindo formato exigido
-        TransacaoWrapperDTO resposta = new TransacaoWrapperDTO(montaTransacaoDTO(saved));
-
-        return resposta;
     }
 
     public TransacaoDTO montaTransacaoDTO(Transacao transacao) {
         DescricaoDTO descricaoDTO = new DescricaoDTO(
                 transacao.getValor().toString(),
-                transacao.getDataHora().toString(),
+                transacao.getDataHora(),
                 transacao.getEstabelecimento(),
                 transacao.getNsu(),
                 transacao.getCodigoAutorizacao(),
                 transacao.getStatus().name());
         FormaPagamentoDTO pagamentoDTO = new FormaPagamentoDTO(
-                transacao.getTipoPagamento().name(),
+                transacao.getTipoPagamento().getDescricao(),
                 transacao.getParcelas().toString());
         return new TransacaoDTO(transacao.getCartao(), transacao.getId().toString(), descricaoDTO, pagamentoDTO);
+    }
+
+    public Transacao montaTransacaoObj(TransacaoWrapperDTO dto) {
+        Transacao transacao = new Transacao();
+
+        transacao.setId(validaIDUnico(dto.transacao().id()));
+        transacao.setCartao(dto.transacao().cartao());
+        transacao.setValor(new BigDecimal(dto.transacao().descricao().valor().replace(',', '.')));
+        transacao.setDataHora(dto.transacao().descricao().dataHora());
+        transacao.setEstabelecimento(dto.transacao().descricao().estabelecimento());
+        transacao.setTipoPagamento(TipoPagamento.fromDescricao(dto.transacao().formaPagamento().tipo()));
+        transacao.setParcelas(Integer.valueOf(dto.transacao().formaPagamento().parcelas()));
+
+        transacao.setNsu(generateNsu());
+        transacao.setCodigoAutorizacao(generateCodigoAutorizacao());
+        return transacao;
+    }
+
+    public Long validaIDUnico(String id) {
+        boolean idJaExiste = this.listarTodos().stream().anyMatch(tr -> tr.transacao().id().equals(id));
+        if (idJaExiste) {
+            throw new RuntimeException("id ja existe");
+        }
+        return Long.valueOf(id);
     }
 
     private String generateNsu() {
@@ -98,7 +97,12 @@ public class PagamentoService {
         return String.valueOf(Math.abs(java.util.concurrent.ThreadLocalRandom.current().nextInt())).substring(0,8);
     }
 
-//    public boolean validaCamposDTO(TransacaoWrapperDTO wrapperDTO) {
-//        wrapperDTO.transacao().descricao()
-//    }
+    public static Integer parseParcelaInt(String parcelas) {
+        try {
+            int number = Integer.parseInt(parcelas);
+            return number > 0 ? number : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }
