@@ -2,10 +2,20 @@ package dev.gustavo.toolschallenge.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public record FormaPagamentoDTO(
+@Data
+@AllArgsConstructor
+public class FormaPagamentoDTO {
+
         @NotBlank
-        String tipo,
+        private String tipo;
 
-        @NotBlank @Pattern(regexp = "^[1-9]\\d*$", message = "Numero de parcelas deve ser um nmeral")
-        String parcelas) {}
+        @NotBlank
+        @Pattern(
+                regexp = "^[1-9]\\d*$",
+                message = "Numero de parcelas deve ser um numeral"
+        )
+        private String parcelas;
+}

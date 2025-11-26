@@ -7,6 +7,7 @@ import dev.gustavo.toolschallenge.dto.DescricaoDTO;
 import dev.gustavo.toolschallenge.dto.FormaPagamentoDTO;
 import dev.gustavo.toolschallenge.dto.TransacaoDTO;
 import dev.gustavo.toolschallenge.dto.TransacaoWrapperDTO;
+import dev.gustavo.toolschallenge.execptions.UniqueIdException;
 import dev.gustavo.toolschallenge.repositories.TransacaoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -39,16 +40,9 @@ public class PagamentoService {
     @Transactional
     public TransacaoWrapperDTO criarPagamento(TransacaoWrapperDTO dtoRequest) {
         Transacao transacao = montaTransacaoObj(dtoRequest);
+        Transacao transacaoSalva = transacaoRepository.save(transacao);
 
-        try {
-            transacao.setStatus(StatusTransacao.AUTORIZADO);
-            Transacao transacaoSalva = transacaoRepository.save(transacao);
-            return new TransacaoWrapperDTO(montaTransacaoDTO(transacaoSalva));
-        } catch (Exception e) {
-            transacao.setStatus(StatusTransacao.NEGADO);
-            return new TransacaoWrapperDTO(montaTransacaoDTO(transacao));
-        }
-
+        return new TransacaoWrapperDTO(montaTransacaoDTO(transacaoSalva));
     }
 
     public TransacaoDTO montaTransacaoDTO(Transacao transacao) {
@@ -58,7 +52,7 @@ public class PagamentoService {
                 transacao.getEstabelecimento(),
                 transacao.getNsu(),
                 transacao.getCodigoAutorizacao(),
-                transacao.getStatus().name());
+                StatusTransacao.AUTORIZADO.name());
         FormaPagamentoDTO pagamentoDTO = new FormaPagamentoDTO(
                 transacao.getTipoPagamento().getDescricao(),
                 transacao.getParcelas().toString());
@@ -68,25 +62,25 @@ public class PagamentoService {
     public Transacao montaTransacaoObj(TransacaoWrapperDTO dto) {
         Transacao transacao = new Transacao();
 
-        transacao.setId(validaIDUnico(dto.transacao().id()));
-        transacao.setCartao(dto.transacao().cartao());
-        transacao.setValor(new BigDecimal(dto.transacao().descricao().valor().replace(',', '.')));
-        transacao.setDataHora(dto.transacao().descricao().dataHora());
-        transacao.setEstabelecimento(dto.transacao().descricao().estabelecimento());
-        transacao.setTipoPagamento(TipoPagamento.fromDescricao(dto.transacao().formaPagamento().tipo()));
-        transacao.setParcelas(Integer.valueOf(dto.transacao().formaPagamento().parcelas()));
+        transacao.setId(validaIDUnico(dto));
+        transacao.setCartao(dto.getTransacao().getCartao());
+        transacao.setValor(new BigDecimal(dto.getTransacao().getDescricao().getValor().replace(',', '.')));
+        transacao.setDataHora(dto.getTransacao().getDescricao().getDataHora());
+        transacao.setEstabelecimento(dto.getTransacao().getDescricao().getEstabelecimento());
+        transacao.setTipoPagamento(TipoPagamento.fromDescricao(dto.getTransacao().getFormaPagamento().getTipo()));
+        transacao.setParcelas(Integer.valueOf(dto.getTransacao().getFormaPagamento().getParcelas()));
 
         transacao.setNsu(generateNsu());
         transacao.setCodigoAutorizacao(generateCodigoAutorizacao());
         return transacao;
     }
 
-    public Long validaIDUnico(String id) {
-        boolean idJaExiste = this.listarTodos().stream().anyMatch(tr -> tr.transacao().id().equals(id));
+    public Long validaIDUnico(TransacaoWrapperDTO dto) {
+        boolean idJaExiste = this.listarTodos().stream().anyMatch(tr -> tr.getTransacao().getId().equals(dto.getTransacao().getId()));
         if (idJaExiste) {
-            throw new RuntimeException("id ja existe");
+            throw new UniqueIdException("ID JA EXISTE", dto);
         }
-        return Long.valueOf(id);
+        return Long.valueOf(dto.getTransacao().getId());
     }
 
     private String generateNsu() {
@@ -97,12 +91,4 @@ public class PagamentoService {
         return String.valueOf(Math.abs(java.util.concurrent.ThreadLocalRandom.current().nextInt())).substring(0,8);
     }
 
-    public static Integer parseParcelaInt(String parcelas) {
-        try {
-            int number = Integer.parseInt(parcelas);
-            return number > 0 ? number : null;
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
 }
