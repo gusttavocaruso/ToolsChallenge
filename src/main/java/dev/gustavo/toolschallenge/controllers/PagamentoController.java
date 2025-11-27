@@ -1,5 +1,6 @@
 package dev.gustavo.toolschallenge.controllers;
 
+import dev.gustavo.toolschallenge.dto.EstornoDTO;
 import dev.gustavo.toolschallenge.dto.TransacaoWrapperDTO;
 import dev.gustavo.toolschallenge.services.PagamentoService;
 import jakarta.validation.Valid;
@@ -24,9 +25,19 @@ public class PagamentoController {
         return ResponseEntity.status(HttpStatus.OK).body(pagamentoService.criarPagamento(dto));
     }
 
+    @PostMapping("/estorno")
+    public ResponseEntity<TransacaoWrapperDTO> gerarEstorno(@Valid @RequestBody EstornoDTO dto) {
+        return ResponseEntity.status(HttpStatus.OK).body(pagamentoService.gerarEstorno(dto));
+    }
+
     @GetMapping
     public ResponseEntity<List<TransacaoWrapperDTO>> listarTransacoes() {
         return ResponseEntity.status(HttpStatus.OK).body(pagamentoService.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TransacaoWrapperDTO> listarTransacaoById(@PathVariable String id) {
+        return ResponseEntity.status(HttpStatus.OK).body(pagamentoService.listarById(id));
     }
 
 }

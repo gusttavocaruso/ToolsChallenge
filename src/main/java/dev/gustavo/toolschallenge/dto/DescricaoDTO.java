@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class DescricaoDTO {
 
-        @Pattern(regexp = "^([1-9]\\d*|0\\.(0?[1-9]|[1-9]\\d?))$",
-                message = "pgt nao pode ser menor que zero!")
+        @Pattern(regexp = "^(?!0+(\\.0+)?$)(\\d+)(\\.\\d+)?$",
+                message = "pgt nao pode ser menor ou igual a zero!")
         @NotBlank
         private String valor;
 

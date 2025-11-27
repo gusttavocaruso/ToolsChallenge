@@ -9,8 +9,8 @@ public class UniqueIdException extends RuntimeException {
 
     private final TransacaoWrapperDTO dto;
 
-    public UniqueIdException(String message, TransacaoWrapperDTO dto) {
-        super(message);
+    public UniqueIdException(TransacaoWrapperDTO dto) {
+        super("ID já existe");
         this.dto = dto;
     }
 
