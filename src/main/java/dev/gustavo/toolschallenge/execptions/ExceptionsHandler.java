@@ -14,13 +14,23 @@ import java.util.List;
 @RestControllerAdvice
 public class ExceptionsHandler {
 
+    @ExceptionHandler(RegraNegocioException.class)
+    public ResponseEntity<TransacaoWrapperDTO> handleNegocio(RegraNegocioException ex) {
+
+        ex.getDto().getTransacao().getDescricao().setStatus(StatusTransacao.NEGADO.name());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .header("Erro encontrado", ex.getMessage())
+                .body(ex.getDto());
+    }
+
     @ExceptionHandler(UniqueIdException.class)
     public ResponseEntity<TransacaoWrapperDTO> handleNegocio(UniqueIdException ex) {
 
         ex.getDto().getTransacao().getDescricao().setStatus(StatusTransacao.NEGADO.name());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .header(String.format("Erro encontrado: %s", ex.getMessage()))
+                .header("Erro encontrado", ex.getMessage())
                 .body(ex.getDto());
     }
 
@@ -59,7 +69,7 @@ public class ExceptionsHandler {
 
             return ResponseEntity
                     .status(ex.getStatusCode())
-                    .header("Erros encontrados", String.join(" | ", erros))
+                    .header("Erro encontrado", String.join(" | ", erros))
                     .body(dto);
         }
 

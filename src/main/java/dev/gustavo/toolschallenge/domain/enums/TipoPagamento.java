@@ -1,5 +1,8 @@
 package dev.gustavo.toolschallenge.domain.enums;
 
+import dev.gustavo.toolschallenge.dto.TransacaoWrapperDTO;
+import dev.gustavo.toolschallenge.execptions.RegraNegocioException;
+
 public enum TipoPagamento {
     AVISTA("AVISTA"),
     PARCELADO_LOJA("PARCELADO LOJA"),
@@ -15,12 +18,13 @@ public enum TipoPagamento {
         return descricao;
     }
 
-    public static TipoPagamento fromDescricao(String tipoDTO) {
+    public static TipoPagamento fromDescricao(TransacaoWrapperDTO dto) {
         for (TipoPagamento tipo : values()) {
-            if (tipo.getDescricao().equals(tipoDTO)) {
+            if (tipo.getDescricao().equals(dto.getTransacao().getFormaPagamento().getTipo())) {
                 return tipo;
             }
         }
-        throw new IllegalArgumentException("TipoPagamento inválido: " + tipoDTO);
+        throw new RegraNegocioException("Atributo 'formaPagamento.tipo' inválido." +
+                " Aceita: 'AVISTA', 'PARCELADO LOJA' ou 'PARCELADO EMISSOR' ", dto);
     }
 }

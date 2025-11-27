@@ -40,7 +40,7 @@ public class TransacaoMapper {
         transacao.setValor(new BigDecimal(dto.getTransacao().getDescricao().getValor().replace(',', '.')));
         transacao.setDataHora(dto.getTransacao().getDescricao().getDataHora());
         transacao.setEstabelecimento(dto.getTransacao().getDescricao().getEstabelecimento());
-        transacao.setTipoPagamento(TipoPagamento.fromDescricao(dto.getTransacao().getFormaPagamento().getTipo()));
+        transacao.setTipoPagamento(TipoPagamento.fromDescricao(dto));
         transacao.setParcelas(Integer.valueOf(dto.getTransacao().getFormaPagamento().getParcelas()));
         transacao.setStatus(StatusTransacao.AUTORIZADO);
 

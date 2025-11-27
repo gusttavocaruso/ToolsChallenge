@@ -15,7 +15,7 @@ public class FormaPagamentoDTO {
         @NotBlank
         @Pattern(
                 regexp = "^[1-9]\\d*$",
-                message = "Numero de parcelas deve ser um numeral"
+                message = "O numero de parcelas deve ser um numeral e maior que 0"
         )
         private String parcelas;
 }

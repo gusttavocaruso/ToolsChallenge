@@ -5,12 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class UniqueIdException extends RuntimeException {
+public class RegraNegocioException extends RuntimeException {
 
-    private final TransacaoWrapperDTO dto;
+    public final TransacaoWrapperDTO dto;
 
-    public UniqueIdException(TransacaoWrapperDTO dto) {
-        super("O ID informado já existe");
+    public RegraNegocioException(String message, TransacaoWrapperDTO dto) {
+        super(message);
         this.dto = dto;
     }
 

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class DescricaoDTO {
 
         @Pattern(regexp = "^(?!0+(\\.0+)?$)(\\d+)(\\.\\d+)?$",
-                message = "pgt nao pode ser menor ou igual a zero!")
+                message = "O pagamento deve ser maior que 0.0")
         @NotBlank
         private String valor;
 
