@@ -8,7 +8,7 @@ A aplicação permite criar pagamentos, gerar estornos e listar transações
 
 <br>
 
-######Tecnologias utilizadas
+###### Tecnologias utilizadas
 
     Java 21
     
@@ -27,11 +27,11 @@ A aplicação permite criar pagamentos, gerar estornos e listar transações
 
 <br>
 
-###Como rodar a aplicação
+### Como rodar a aplicação
 
 Clone o repositório ou baixe o .zip em sua máquina. 
 
-######A aplicação está preparada para rodar via Docker utilizando o perfil postgres.
+###### A aplicação está preparada para rodar via Docker utilizando o perfil postgres.
 
 No diretório clonado, rode o comando:
 
@@ -49,7 +49,7 @@ Esse comando irá subir:
 </ul>
 
 
-######A aplicação tambem pode rodar localmente com H2 sem Docker
+###### A aplicação tambem pode rodar localmente com H2 sem Docker
 
 O projeto possui um perfil h2 para desenvolvimento, ativado por padrão: spring.profiles.active=h2
 
@@ -62,7 +62,7 @@ A porta tambem será :8080.
 
 <br>
 
-######Para facilitar o consumo da API, foi incluído o Swagger UI (OpenAPI).
+###### Para facilitar o consumo da API, foi incluído o Swagger UI (OpenAPI).
 
 Após subir a aplicação, acesse: http://localhost:8080/swagger-ui.html
 
@@ -71,14 +71,14 @@ Aqui você poderá testar todas as rotas da API sem precisar do Insomnia/Postman
 
 <br>
 
-###Endpoints da API
+### Endpoints da API
 
 Base URL
 http://localhost:8080/api-pagamentos
 
 <br>
 
-######Realizar um pagamento
+###### Realizar um pagamento
 
 POST /api-pagamentos
 
@@ -128,7 +128,7 @@ body response:
 
 <br>
 
-######Realizar estorno
+###### Realizar estorno
 
 POST /api-pagamentos/estorno
 
@@ -144,20 +144,20 @@ O body response segue o mesmo padrão do pagamento, alterando o descricao.status
 
 <br>
 
-######Listar todas as transações
+###### Listar todas as transações
 
 GET /api-pagamentos
 
 <br>
 
-######Buscar transação por ID
+###### Buscar transação por ID
 
 GET /api-pagamentos/{id}
 
 
 <br>
 
-####Regras de erro
+#### Regras de erro
 
 Para qualquer erro (campos inválidos, forma de pagamento desconhecida, ID já existente, JSON mal formatado):
 
@@ -170,7 +170,7 @@ Apenas para casos de ID não encontrado ou de ID já estornado, o body response 
 <br>
 
 
-###Informacoes adicionais 
+### Informacoes adicionais 
 
 O docker-compose.yml utiliza:
 
