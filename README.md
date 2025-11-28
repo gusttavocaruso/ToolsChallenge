@@ -39,14 +39,13 @@ No diretório clonado, rode o comando:
 
 
 Esse comando irá subir:
-<ul>
 
     PostgreSQL 15 na porta 5433
     
     API ToolsChallenge na porta 8080
     
     A API iniciará já conectada ao banco, usando application-postegres.properties.
-</ul>
+
 
 
 ###### A aplicação tambem pode rodar localmente com H2 sem Docker
